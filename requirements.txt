@@ -14,3 +14,7 @@ openai>=2.44.0         # Videos API support for Sora 2
 fastapi>=0.110
 uvicorn>=0.29
 watchfiles>=0.21
+# OpenMontage AI Studio (web dashboard + production worker)
+python-multipart>=0.0.9   # audio upload parsing
+espeakng-loader>=0.2      # bundled offline espeak-ng TTS (no API keys)
+imageio-ffmpeg>=0.5       # bundled ffmpeg binary fallback where FFmpeg is not installed

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0e14">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>OpenMontage AI Studio</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">🎬</div>
+      <div>OpenMontage <span style="color:var(--accent)">AI Studio</span></div>
+    </div>
+    <div class="header-actions">
+      <button class="chip" id="btn-health" title="System health" aria-label="System health">❤️</button>
+      <button class="chip" id="btn-account" title="Session" aria-label="Session">🔐</button>
+    </div>
+  </header>
+
+  <main class="main" id="view" role="main" aria-live="polite"></main>
+
+  <nav class="nav-dock" aria-label="Primary navigation">
+    <button class="nav-item" data-route="home"><span class="ico">🏠</span>Home</button>
+    <button class="nav-item" data-route="create"><span class="ico">🎬</span>Create</button>
+    <button class="nav-item" data-route="research"><span class="ico">🔎</span>Research</button>
+    <button class="nav-item" data-route="queue"><span class="ico">📋</span>Queue</button>
+    <button class="nav-item" data-route="completed"><span class="ico">✅</span>Done</button>
+    <button class="nav-item" data-route="projects"><span class="ico">🗂</span>History</button>
+    <button class="nav-item" data-route="providers"><span class="ico">🧩</span>Providers</button>
+    <button class="nav-item" data-route="more"><span class="ico">•••</span>More</button>
+  </nav>
+
+  <div class="modal-backdrop" id="modal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h2 id="modal-title">Details</h2>
+      <div id="modal-body"></div>
+      <button class="btn btn-secondary" id="modal-close" style="margin-top:12px">Close</button>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

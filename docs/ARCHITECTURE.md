@@ -525,3 +525,87 @@ tests/
 5. **Selector pattern over hard-coded providers** — Capabilities degrade gracefully. Missing an API key? The selector falls through to the next provider or a local alternative.
 
 6. **Skills over code for intelligence** — Creative decisions, quality checklists, review criteria, and prompt templates live in Markdown skills, not Python. This means the agent's behavior can be tuned by editing text files, not code.
+
+---
+
+# OpenMontage AI Studio (Web Application Layer)
+
+> Added 2026-10-09. The sections above describe the upstream agent-first
+> architecture. This section documents the **AI Studio**: a mobile-first web
+> application and background production worker that drive the same tools
+> programmatically (no coding-agent required at runtime).
+
+## Placement
+
+```
+iPhone / browser  ──HTTPS──►  studio/  (FastAPI: static SPA + JSON API)
+                                 │
+                    ┌────────────┴─────────────┐
+                    ▼                          ▼
+             SQLite (studio_data/)     PipelineWorker thread
+             jobs · projects ·         QUEUED → RESEARCHING → SCRIPTING →
+             research · logs ·         COLLECTING_ASSETS → GENERATING_VOICE →
+             providers                 CREATING_CAPTIONS → RENDERING →
+                                       QUALITY_CHECK → COMPLETED/FAILED
+                                                │
+                                                ▼
+                                Reused upstream tools (tools/, lib/)
+                                VideoStitch · AudioMixer · SubtitleGen …
+                                                │
+                                                ▼
+                                FFmpeg / ffprobe (local binaries)
+```
+
+## Design decisions
+
+1. **Separation of concerns** — long renders never run inside a request
+   handler; `PipelineWorker` (daemon thread) claims QUEUED jobs from SQLite
+   (`claim_next_queued()` is atomic). The API stays lightweight and
+   mobile-responsive.
+2. **Durable state** — job state, logs, project metadata, research cache and
+   provider state live in `studio_data/studio.db` (WAL mode). Media lives in
+   `studio_data/projects/<project_id>/`. Ephemeral storage is detected and
+   warned about (`/api/storage` → `persistence_warning`).
+3. **Reuse before rewrite** — captions use `tools/subtitle/SubtitleGen`;
+   audio mixing uses `tools/audio/AudioMixer.full_mix`; clip assembly uses
+   `tools/video/VideoStitch`. Each has a plain-FFmpeg fallback (logged in
+   `render_result.used_tools`) so the pipeline survives partial installs.
+4. **Free-first providers** — `studio/pipeline/providers.py` is a registry
+   with capability/health/masking. Local providers (FFmpeg, espeak-ng,
+   local motion generator, Pillow captions) are required for the free
+   workflow. Everything else (Pexels, Pixabay, Piper, LLM, paid AI video)
+   is optional and explicitly reported as such.
+5. **Honesty by construction** — research findings carry source URLs and
+   fact/opinion classification; unverified trend claims are impossible to
+   "graduate" to verified; narration failures are recorded and jobs continue
+   *without* claiming narration; QC must pass before COMPLETED.
+6. **Security** — token auth + HMAC session cookies + CSRF header on
+   mutations, per-IP throttling, path-traversal-safe downloads, SSRF-guarded
+   fetches (private ranges blocked), argv-only subprocess calls with
+   timeouts, secret masking in the UI, safe error strings.
+
+## Job state machine
+
+```
+QUEUED ──► RUNNING(stage) ──► COMPLETED   (only after QC passes)
+   │            │
+   │            ├──► FAILED    (error + error_stage recorded; retry ≤ 2)
+   └──► CANCELLED ◄── cooperative cancel checked between stages
+```
+
+Stage order: RESEARCHING → SCRIPTING → COLLECTING_ASSETS →
+GENERATING_VOICE → CREATING_CAPTIONS → RENDERING → QUALITY_CHECK.
+
+## Key files (Studio)
+
+| File | Purpose |
+|---|---|
+| `studio/api.py` | FastAPI app: routes, middleware (auth/CSRF/throttle), static SPA |
+| `studio/worker.py` | Pipeline stage runner (background thread) |
+| `studio/jobs.py` | Job manager: dedupe, transitions, retry, cancel, logs |
+| `studio/db.py` | SQLite persistence |
+| `studio/models.py` | Pydantic request validation |
+| `studio/security.py` | Sessions, rate limit, safe paths, SSRF guard, masking |
+| `studio/ffmpeg_env.py` | FFmpeg/ffprobe discovery + PATH shims |
+| `studio/pipeline/*.py` | research, scriptgen, assets, tts, captions, music, render, qc, storage, providers |
+| `studio/static/` | Mobile-first SPA (12 views, dark theme, no build step) |

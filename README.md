@@ -74,6 +74,27 @@ Turn your AI coding assistant into a full video production studio. Describe what
 
 **Important distinction:** OpenMontage can make image-based videos, but it can also make a real **video video** for free/open-source workflows: the agent builds a corpus from free stock footage and open archives, retrieves actual motion clips, edits them into a timeline, and renders a finished piece. That is not the usual "animate a handful of stills and call it video" trick.
 
+---
+
+## 🎬 OpenMontage AI Studio (web app in this repo)
+
+This repository also ships **AI Studio** — a mobile-first, automated video-production web application on top of the OpenMontage tools. Request any topic in plain English and get a finished MP4: trend research → source-verified script → footage → narration → captions → FFmpeg render → QC gate → download.
+
+```bash
+python3 -m venv .venv && . .venv/bin/activate
+pip install -r requirements.txt
+python -m studio            # dashboard at http://localhost:8080
+# or headless:
+python scripts/studio_render_once.py "Your topic" --duration 15 --footage local
+```
+
+- **$0 workflow**: works with no API keys (espeak-ng narration, local motion footage, template scripts). Optional free Pexels/Pixabay keys add real stock footage. Paid providers are disabled by default and never used silently.
+- **iPhone-first UI**: dark theme, 12 views (dashboard, create, research, queue, job detail, downloads, history, providers, storage, health, diagnostics, help).
+- **Real job manager**: durable SQLite state, stage indicators, logs, retry, cancellation, duplicate-submission protection, QC report before COMPLETED.
+- **Docs**: [Implementation audit](docs/IMPLEMENTATION_AUDIT.md) · [Architecture](docs/ARCHITECTURE.md) · [Free deployment](docs/FREE_DEPLOYMENT.md) · [Test report](docs/TEST_REPORT.md) · [Cost & limits](docs/COST_AND_LIMITS.md) · [iPhone setup](docs/IPHONE_SETUP.md) · [Troubleshooting](docs/TROUBLESHOOTING.md)
+
+---
+
 <div align="center">
   <video src="https://github.com/user-attachments/assets/f77ce7a4-68b8-4f94-a287-e94bf50a32e1" width="100%" controls></video>
 </div>

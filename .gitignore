@@ -5,6 +5,14 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+.venv/
+venv/
+
+# OpenMontage AI Studio — runtime data (SQLite DB, generated media, uploads, logs)
+studio_data/
+
+# Bootstrapped media binaries (ffprobe etc. — downloaded, not source)
+.tools/
 
 # Local model downloads (e.g. Piper TTS voices, fetched at runtime — not source)
 *.onnx

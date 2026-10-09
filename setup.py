@@ -15,5 +15,10 @@ setup(
         "requests>=2.31",
         "google-genai>=1.0.0",
         "openai>=2.44.0",
+        "fastapi>=0.110",
+        "uvicorn>=0.29",
+        "python-multipart>=0.0.9",
+        "espeakng-loader>=0.2",
+        "imageio-ffmpeg>=0.5",
     ],
 )
